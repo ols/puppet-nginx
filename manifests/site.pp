@@ -6,12 +6,14 @@
 # Parameters :
 # * ensure: typically set to "present" or "absent". Defaults to "present"
 # * content: site definition (should be a template).
+# * source: source of site definition (should be a file path).
 #
-define nginx::site($ensure='present', $content='') {
+define nginx::site($ensure='present', $content=undef, $source=undef) {
   case $ensure {
     'present' : {
       nginx::install_site { $name:
-        content => $content
+        content => $content,
+        source  => $source
       }
     }
     'absent' : {
