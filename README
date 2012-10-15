@@ -68,6 +68,8 @@ Provide nginx::fcgi::site
 
 Templates :
 	* nginx/includes/fastcgi_params.erb
+	* nginx/fcgi_mono_site.erb
+	* nginx/fcgi_site.erb
 
 ###  Define: nginx::fcgi::site  ###
 
@@ -111,3 +113,4 @@ Sample Usage :
 
 ## CHANGELOG ##
 - v0.2 : * ssl support
+- v0.2.1 : * mono support

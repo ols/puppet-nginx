@@ -31,6 +31,7 @@
 #     root            => '/var/www/nginx-default',
 #     fastcgi_pass    => '127.0.0.1:9000',
 #     server_name     => $fqdn,
+#     template        => 'nginx/fcgi_mono_site.erb' 
 #   }
 #
 define nginx::fcgi::site(
@@ -44,7 +45,8 @@ define nginx::fcgi::site(
   $access_log          = undef,
   $ssl_certificate     = undef,
   $ssl_certificate_key = undef,
-  $ssl_session_timeout = '5m') {
+  $ssl_session_timeout = '5m',
+  $template            = 'nginx/fcgi_site.erb') {
 
   $real_server_name = $server_name ? {
     undef   => $name,
@@ -80,7 +82,7 @@ define nginx::fcgi::site(
 
   nginx::site { $name:
     ensure  => $ensure,
-    content => template('nginx/fcgi_site.erb'),
+    content => template($template),
   }
 }
 

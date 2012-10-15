@@ -3,18 +3,34 @@
 # Install nginx vhost
 # This definition is private, not intended to be called directly
 #
-define nginx::install_site($content=undef) {
+define nginx::install_site($content=undef, $source=undef) {
   # first, make sure the site config exists
   case $content {
     undef: {
-      file { "/etc/nginx/sites-available/${name}":
-        ensure  => present,
-        mode    => '0644',
-        owner   => 'root',
-        group   => 'root',
-        alias   => "sites-${name}",
-        notify  => Service['nginx'],
-        require => Package['nginx'],
+      case $source {
+        undef: {
+          file { "/etc/nginx/sites-available/${name}":
+            ensure  => present,
+            mode    => '0644',
+            owner   => 'root',
+            group   => 'root',
+            alias   => "sites-${name}",
+            notify  => Service['nginx'],
+            require => Package['nginx'],
+          }
+        }
+        default: {
+          file { "/etc/nginx/sites-available/${name}":
+            ensure  => present,
+            mode    => '0644',
+            owner   => 'root',
+            group   => 'root',
+            alias   => "sites-$name",
+            source => $source,
+            require => Package['nginx'],
+            notify  => Service['nginx'],
+          }
+        }
       }
     }
     default: {

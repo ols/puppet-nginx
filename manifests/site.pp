@@ -17,15 +17,15 @@
 #   See http://wiki.nginx.org for details.
 ##
 define nginx::site(
-  $ensure='present',
-  $content='',
+  $content     =undef,
+  $source      =undef,
   $root,
-  $ensure              = 'present',
-  $index               = 'index.html',
-  $include             = '',
-  $listen              = '80',
-  $server_name         = undef,
-  $access_log          = undef,
+  $ensure      = 'present',
+  $index       = 'index.html',
+  $include     = '',
+  $listen      = '80',
+  $server_name = undef,
+  $access_log  = undef,
   $ssl_certificate     = undef,
   $ssl_certificate_key = undef,
   $ssl_session_timeout = '5m') {
@@ -33,7 +33,8 @@ define nginx::site(
   case $ensure {
     'present' : {
       nginx::install_site { $name:
-        content => $content
+        content => $content,
+        source  => $source
       }
     }
     'absent' : {
