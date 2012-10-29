@@ -19,26 +19,14 @@
 # Templates:
 #   - nginx.conf.erb => /etc/nginx/nginx.conf
 #
-class nginx {
-  $nginx_includes = '/etc/nginx/includes'
-  $nginx_conf = '/etc/nginx/conf.d'
+class nginx($nginx_user=undef, $nginx_worker_processes=undef, $nginx_worker_connections=undef) {
+  include nginx::params
 
-  $real_nginx_user = $::nginx_user ? {
-    undef   => 'www-data',
-    default => $::nginx_user
+  if ! defined(Package['nginx']) { 
+    package { 'nginx':
+      ensure => installed
+    }
   }
-
-  $real_nginx_worker_processes = $::nginx_worker_processes ? {
-    undef   => '1',
-    default => $::nginx_worker_processes
-  }
-
-  $real_nginx_worker_connections = $::nginx_worker_connections ? {
-    undef   => '1024',
-    default => $::nginx_worker_connections
-  }
-
-  if ! defined(Package['nginx']) { package { 'nginx': ensure => installed }}
 
   #restart-command is a quick-fix here, until http://projects.puppetlabs.com/issues/1014 is solved
   service { 'nginx':
@@ -59,7 +47,7 @@ class nginx {
     require => Package['nginx'],
   }
 
-  file { $nginx_conf:
+  file { $nginx::params::nginx_conf :
     ensure  => directory,
     mode    => '0644',
     owner   => 'root',
@@ -75,7 +63,7 @@ class nginx {
     require => Package['nginx'],
   }
 
-  file { $nginx_includes:
+  file { $nginx::params::nginx_includes :
     ensure  => directory,
     mode    => '0644',
     owner   => 'root',
@@ -86,6 +74,15 @@ class nginx {
   # Nuke default files
   file { '/etc/nginx/fastcgi_params':
     ensure  => absent,
+    require => Package['nginx'],
+  }
+
+  # Provide site config folders
+  file { [ $nginx::params::nginx_sites_available , $nginx::params::nginx_sites_enabled ]:
+    ensure  => directory,
+    mode    => '0755',
+    owner   => 'root',
+    group   => 'root',
     require => Package['nginx'],
   }
 }

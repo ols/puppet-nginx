@@ -4,39 +4,44 @@
 # This definition is private, not intended to be called directly
 #
 define nginx::install_site($content=undef) {
+  include nginx::params
+
   # first, make sure the site config exists
   case $content {
     undef: {
-      file { "/etc/nginx/sites-available/${name}":
-        ensure  => present,
-        mode    => '0644',
-        owner   => 'root',
-        group   => 'root',
-        alias   => "sites-${name}",
-        notify  => Service['nginx'],
-        require => Package['nginx'],
-      }
+      $real_config_content = ''
     }
     default: {
-      file { "/etc/nginx/sites-available/${name}":
-        ensure  => present,
-        mode    => '0644',
-        owner   => 'root',
-        group   => 'root',
-        alias   => "sites-$name",
-        content => $content,
-        require => Package['nginx'],
-        notify  => Service['nginx'],
-      }
+      $real_config_content = $content
     }
   }
 
+  # create the site folder
+  file { "${nginx::params::nginx_sites_enabled}/${name}.d":
+    ensure  => directory,
+    mode    => '0755',
+    owner   => 'root',
+    group   => 'root',
+    require => [ Package['nginx'], File[$nginx::params::nginx_sites_available] ],
+  }
+
+  file { "${nginx::params::nginx_sites_enabled}/${name}.d/placeholder.conf":
+    ensure  => present,
+    require => File["${nginx::params::nginx_sites_enabled}/${name}.d"],
+  }
+
+  # create the site definition
+  file { "${nginx::params::nginx_sites_available}/${name}.conf":
+    ensure       => present,
+    content      => "include ${nginx::params::nginx_sites_enabled}/${name}.d/*;",
+    require      => File[$nginx::params::nginx_sites_available],
+  }
+
   # now, enable it.
-  exec { "ln -s /etc/nginx/sites-available/${name} /etc/nginx/sites-enabled/${name}":
-    unless  => "/bin/sh -c '[ -L /etc/nginx/sites-enabled/${name} ] && \
-      [ /etc/nginx/sites-enabled/${name} -ef /etc/nginx/sites-available/${name} ]'",
-    path    => ['/usr/bin/', '/bin/'],
+  file { "${nginx::params::nginx_sites_enabled}/${name}.conf":
+    ensure  => link,
+    target  => "${nginx::params::nginx_sites_available}/${name}.conf",
     notify  => Service['nginx'],
-    require => File["sites-${name}"],
+    require => File["${nginx::params::nginx_sites_available}/${name}.conf"],
   }
 }
