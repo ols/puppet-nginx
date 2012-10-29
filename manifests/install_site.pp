@@ -8,16 +8,6 @@ define nginx::install_site($port=undef,$root=undef) {
 
   $server_name = $name
 
-  # first, make sure the site config exists
-  case $content {
-    undef: {
-      $real_config_content = ''
-    }
-    default: {
-      $real_config_content = $content
-    }
-  }
-
   # create the site folder
   file { "${nginx::params::nginx_sites_enabled}/${name}.d":
     ensure  => directory,
