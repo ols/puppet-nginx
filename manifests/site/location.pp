@@ -17,6 +17,6 @@ define nginx::site::location($ensure=present, $location=undef, $site=undef, $loc
 
   file { "${nginx::params::nginx_sites_enabled}/${site}.d/${name}.conf":
     ensure  => present,
-    content => template("nginx/location.erb"),
+    content => template('nginx/location.erb'),
   }
 }

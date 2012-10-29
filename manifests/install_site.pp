@@ -20,7 +20,7 @@ define nginx::install_site($port=undef,$root=undef) {
   # create the site definition
   file { "${nginx::params::nginx_sites_available}/${name}.conf":
     ensure    => present,
-    content   => template("nginx/site.erb"),
+    content   => template('nginx/site.erb'),
     require   => File[$nginx::params::nginx_sites_available],
   }
 

@@ -6,7 +6,6 @@ class { 'nginx':
 nginx::site { 'test.example.com':
   ensure  => present,
   port    => '80',
-  #  root    => '/var/www/test.example.com',
 }
 
 nginx::site::location { 'testlocation':
