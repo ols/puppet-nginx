@@ -22,7 +22,7 @@
 class nginx($nginx_user=undef, $nginx_worker_processes=undef, $nginx_worker_connections=undef) {
   include nginx::params
 
-  if ! defined(Package['nginx']) { 
+  if ! defined(Package['nginx']) {
     package { 'nginx':
       ensure => installed
     }

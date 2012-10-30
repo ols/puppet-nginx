@@ -1,17 +1,19 @@
 # Define: nginx::site
 #
-# Install a nginx site in /etc/nginx/sites-available (and symlink in /etc/nginx/sites-enabled).
+# Install a nginx site in /etc/nginx/sites-available
+# (and symlink in /etc/nginx/sites-enabled).
 #
 #
 # Parameters :
 # * ensure: typically set to "present" or "absent". Defaults to "present"
 # * content: site definition (should be a template).
 #
-define nginx::site($ensure='present', $content='') {
+define nginx::site($ensure='present', $port=undef, $root=undef) {
   case $ensure {
     'present' : {
       nginx::install_site { $name:
-        content => $content
+        port => $port,
+        root => $root,
       }
     }
     'absent' : {
