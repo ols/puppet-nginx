@@ -16,3 +16,14 @@ nginx::site::location { 'testlocation':
     'expires'      => 'max',
   }
 }
+
+nginx::site::drupal { 'test.example.com':
+  version => 6,
+}
+
+nginx::site::fastcgi { 'test.example.com':
+  options => [
+    'fastcgi_pass   unix:/tmp/php-fpm.sock;',
+    'fastcgi_index  index.php;',
+  ]
+}
