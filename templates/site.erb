@@ -2,5 +2,5 @@ server {
   listen <%= port %>;
   server_name <%= server_name %>;
   <% if @root %>root <%= root %>;<% end %>
-  include <%= scope.lookupvar('nginx::params::nginx_sites_enabled')%>/<%= name %>.d/*;
+  include <%= scope.lookupvar('nginx::params::nginx_sites_enabled')%>/<%= name %>.d/*.conf;
 }
