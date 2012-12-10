@@ -3,6 +3,8 @@
 # Create a fcgi site config from template using parameters.
 # You can use my php5-fpm class to manage fastcgi servers.
 #
+# XXX - consider making the php5-pfm module a dependency and used here?
+#
 # Parameters :
 # * ensure: typically set to "present" or "absent". Defaults to "present"
 # * root: document root (Required)
@@ -35,8 +37,8 @@
 #   }
 #
 define nginx::fcgi::site(
-  $root,
-  $fastcgi_pass,
+  $root                = undef,
+  $fastcgi_pass        = undef,
   $ensure              = 'present',
   $index               = 'index.php',
   $include             = '',
@@ -47,6 +49,9 @@ define nginx::fcgi::site(
   $ssl_certificate_key = undef,
   $ssl_session_timeout = '5m',
   $template            = 'nginx/fcgi_site.erb') {
+
+  # the stuff in this class ought to be brought in here..
+  class { 'nginx::fcgi': }
 
   $real_server_name = $server_name ? {
     undef   => $name,
@@ -83,6 +88,7 @@ define nginx::fcgi::site(
   nginx::site { $name:
     ensure  => $ensure,
     content => template($template),
+    root    => $root,
   }
 }
 
