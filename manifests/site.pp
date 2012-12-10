@@ -19,7 +19,7 @@
 define nginx::site(
   $content     =undef,
   $source      =undef,
-  $root,
+  $root        =undef,
   $ensure      = 'present',
   $index       = 'index.html',
   $include     = '',
@@ -34,7 +34,8 @@ define nginx::site(
     'present' : {
       nginx::install_site { $name:
         content => $content,
-        source  => $source
+        source  => $source,
+        root    => $root
       }
     }
     'absent' : {
