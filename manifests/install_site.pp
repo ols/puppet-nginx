@@ -60,13 +60,16 @@ define nginx::install_site(
         require => File["sites-${name}"],
       }
     
-      # ensure mkdir $root
-      file { $root:
-        ensure  => directory,
-        mode    => '0750',
-        owner   => 'root',
-        group   => 'www-data', # hardcoded XXX
-        require => Package['nginx'],
-        notify  => Service['nginx'],
-      }
-} # end install_site()
+      if $root != undef {
+        # ensure mkdir $root
+        file { $root:
+          ensure  => directory,
+          mode    => '0750',
+          owner   => 'root',
+          group   => 'www-data', # hardcoded XXX
+          require => Package['nginx'],
+          notify  => Service['nginx'],
+        } # end file
+      } # end conditional
+
+} # end nginx::install_site()
