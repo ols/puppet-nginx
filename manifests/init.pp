@@ -21,11 +21,13 @@
 #
 class nginx(
   $nginx_user = 'www-data', 
+  $nginx_group = 'root', 
   $nginx_worker_processes = '1', 
   $nginx_worker_connections = '1024') 
 {
   $nginx_includes = '/etc/nginx/includes'
   $nginx_conf = '/etc/nginx/conf.d'
+  $nginx_home = '/var/www'
 
   if ! defined(Package['nginx']) { package { 'nginx': ensure => installed }}
 
@@ -38,6 +40,7 @@ class nginx(
     restart    => '/etc/init.d/nginx reload'
   }
 
+# XXX - refactor this code, condense file resources into a list, rather than separate file {}
   file { '/etc/nginx/nginx.conf':
     ensure  => present,
     mode    => '0644',
@@ -72,9 +75,16 @@ class nginx(
     require => Package['nginx'],
   }
 
-  # Nuke default files
   file { '/etc/nginx/fastcgi_params':
     ensure  => absent,
     require => Package['nginx'],
   }
+
+  file { $nginx_home:
+    ensure  => directory,
+    mode    => '0755',
+    owner   => 'root',
+    group   => $nginx_group,
+    require => Package['nginx'],
+  } # end litany of file resources
 }
