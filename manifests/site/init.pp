@@ -32,20 +32,15 @@ define nginx::site(
 
       case $ensure {
         'present' : {
-          nginx::install_site { $name:
-            content => $content,
-            source  => $source,
-            root    => $root
-          }
+           nginx::install_site { $name:
+             content => $content,
+             source  => $source,
+             root    => $root
+           }
         }
         'absent' : {
-          exec { "/bin/rm -f /etc/nginx/sites-enabled/${name}":
-            onlyif  => "/bin/sh -c '[ -L /etc/nginx/sites-enabled/${name} ] && \
-              [ /etc/nginx/sites-enabled/$name -ef /etc/nginx/sites-available/${name} ]'",
-            notify  => Service['nginx'],
-            require => Package['nginx'],
-          }
-        }
+           nginx::disable_site { $name: }
+       }
         default: { err ("Unknown ensure value: '$ensure'") }
       }
     
@@ -61,15 +56,7 @@ define nginx::site(
     
       # Autogenerating ssl certs
       if $listen == '443' and  $ensure == 'present' and ($ssl_certificate == undef or $ssl_certificate_key == undef) {
-        exec { "generate-${name}-certs":
-          command => "/usr/bin/openssl req -new -inform PEM -x509 -nodes -days 999 -subj \
-            '/C=ZZ/ST=AutoSign/O=AutoSign/localityName=AutoSign/commonName=${real_server_name}/organizationalUnitName=AutoSign/emailAddress=AutoSign/' \
-            -newkey rsa:2048 -out /etc/nginx/ssl/${name}.pem -keyout /etc/nginx/ssl/${name}.key",
-          unless  => "/usr/bin/test -f /etc/nginx/ssl/${name}.pem",
-          require => File['/etc/nginx/ssl'],
-          notify  => Service['nginx'],
-        }
-      }
+        nginx::create_ssl_cert { $name: }
     
       $real_ssl_certificate = $ssl_certificate ? {
         undef   => "/etc/nginx/ssl/${name}.pem",
@@ -81,4 +68,4 @@ define nginx::site(
         default => $ssl_certificate_key,
       }
 
- }
+} # end nginx::site()
