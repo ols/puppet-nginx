@@ -6,8 +6,8 @@
 # Templates :
 # * nginx/includes/fastcgi_params.erb
 #
-class nginx::fcgi inherits nginx {
+class nginx::config::fcgi inherits nginx {
   nginx::site_include { 'fastcgi_params':
     content => template('nginx/includes/fastcgi_params.erb'),
   }
-}
+} # endnginx::config::fcgi class
