@@ -3,7 +3,7 @@
 # Install nginx vhost
 # This definition is private, not intended to be called directly
 #
-define nginx::install_site($content=undef, $source=undef) {
+define nginx::install_site($content=undef, $source=undef, $root=undef) {
   # first, make sure the site config exists
   case $content {
     undef: {
@@ -54,5 +54,15 @@ define nginx::install_site($content=undef, $source=undef) {
     path    => ['/usr/bin/', '/bin/'],
     notify  => Service['nginx'],
     require => File["sites-${name}"],
+  }
+
+  # ensure mkdir $root
+  file { $root:
+    ensure  => directory,
+    mode    => '0750',
+    owner   => 'root',
+    group   => 'www-data', # hardcoded XXX
+    require => Package['nginx'],
+    notify  => Service['nginx'],
   }
 }
