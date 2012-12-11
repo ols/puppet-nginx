@@ -28,6 +28,7 @@ class nginx(
     $nginx_includes = '/etc/nginx/includes'
     $nginx_conf = '/etc/nginx/conf.d'
     $nginx_home = '/var/www'
+    $nginx_proxy_params = '/etc/nginx/includes/proxy_params'
   
     if ! defined(Package['nginx']) { package { 'nginx': ensure => installed }}
   
@@ -74,6 +75,15 @@ class nginx(
   
       '/etc/nginx/fastcgi_params':
         ensure  => absent,
+        require => Package['nginx'];
+
+      $nginx_proxy_params:
+        ensure  => present,
+        mode    => '0644',
+        owner   => 'root',
+        group   => 'root',
+        content => template('nginx/includes/proxy_params'),
+        notify  => Service['nginx'],
         require => Package['nginx'];
   
       $nginx_home:
