@@ -4,7 +4,7 @@
 # This definition is private, not intended to be called directly
 #
 define nginx::install_site(
-  content=undef,
+  $content=undef,
   $source=undef,
   $root=undef) {
 
