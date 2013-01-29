@@ -8,24 +8,25 @@
 # * ensure: typically set to "present" or "absent". Defaults to "present"
 # * content: set the content of the config snipppet. Defaults to 'template("nginx/${name}.conf.erb")'
 # * order: specifies the load order for this config snippet. Defaults to "500"
+# * conf: folder for site configurations
 #
 define nginx::config(
-  $ensure='present',
-  $content=undef,
-  $order='500') {
+  $ensure  = 'present',
+  $content = undef,
+  $order   = '500',
+  $conf    = hiera('conf', $nginx::params::conf)
+) {
+  $real_content = $content ? {
+    undef   => template("nginx/${name}.conf.erb"),
+    default => $content,
+  }
 
-      $real_content = $content ? {
-        undef   => template("nginx/${name}.conf.erb"),
-        default => $content,
-      }
-    
-      file { "${nginx::params::nginx_conf}/${order}-${name}.conf":
-        ensure  => $ensure,
-        content => $real_content,
-        mode    => '0644',
-        owner   => 'root',
-        group   => 'root',
-        notify  => Service['nginx'],
-      }
+  file { "${conf}/${order}-${name}.conf":
+    ensure  => $ensure,
+    content => $real_content,
+    mode    => '0644',
+    owner   => 'root',
+    group   => 'root',
+    notify  => Service['nginx'],
+  }
 }
-

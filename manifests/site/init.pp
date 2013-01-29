@@ -17,9 +17,9 @@
 #   See http://wiki.nginx.org for details.
 ##
 define nginx::site(
-  $content     =undef,
-  $source      =undef,
-  $root        =undef,
+  $content     = undef,
+  $source      = undef,
+  $root        = undef,
   $ensure      = 'present',
   $index       = 'index.html',
   $include     = '',
@@ -28,44 +28,46 @@ define nginx::site(
   $access_log  = undef,
   $ssl_certificate     = undef,
   $ssl_certificate_key = undef,
-  $ssl_session_timeout = '5m') {
+  $ssl_session_timeout = '5m',
+  $log_dir     = hiera('log_dir', $nginx::params::log_dir)
+) {
 
-      case $ensure {
-        'present' : {
-           nginx::install_site { $name:
-             content => $content,
-             source  => $source,
-             root    => $root
-           }
-        }
-        'absent' : {
-           nginx::disable_site { $name: }
+  case $ensure {
+    'present' : {
+       nginx::install_site { $name:
+         content => $content,
+         source  => $source,
+         root    => $root
        }
-        default: { err ("Unknown ensure value: '$ensure'") }
-      }
-    
-      $real_server_name = $server_name ? {
-        undef   => $name,
-        default => $server_name,
-      }
-    
-      $real_access_log = $access_log ? {
-        undef   => "/var/log/nginx/${name}_access.log",
-        default => $access_log,
-      }
-    
-      # Autogenerating ssl certs
-      if $listen == '443' and  $ensure == 'present' and ($ssl_certificate == undef or $ssl_certificate_key == undef) {
-        nginx::create_ssl_cert { $name: }
-    
-      $real_ssl_certificate = $ssl_certificate ? {
-        undef   => "/etc/nginx/ssl/${name}.pem",
-        default => $ssl_certificate,
-      }
-    
-      $real_ssl_certificate_key = $ssl_certificate_key ? {
-        undef   => "/etc/nginx/ssl/${name}.key",
-        default => $ssl_certificate_key,
-      }
+    }
+    'absent' : {
+       nginx::disable_site { $name: }
+   }
+    default: { err ("Unknown ensure value: '$ensure'") }
+  }
 
-} # end nginx::site()
+  $real_server_name = $server_name ? {
+    undef   => $name,
+    default => $server_name,
+  }
+
+  $real_access_log = $access_log ? {
+    undef   => "${log_dir}/${name}_access.log",
+    default => $access_log,
+  }
+
+  # Autogenerating ssl certs
+  if $listen == '443' and  $ensure == 'present' and ($ssl_certificate == undef or $ssl_certificate_key == undef) {
+    nginx::create_ssl_cert { $name: }
+
+    $real_ssl_certificate = $ssl_certificate ? {
+      undef   => "/etc/nginx/ssl/${name}.pem",
+      default => $ssl_certificate,
+    }
+  
+    $real_ssl_certificate_key = $ssl_certificate_key ? {
+      undef   => "/etc/nginx/ssl/${name}.key",
+      default => $ssl_certificate_key,
+    }
+  }
+}

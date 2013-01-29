@@ -25,7 +25,12 @@ class nginx(
   $worker_processes   = hiera('worker_processes', $nginx::params::worker_processes), 
   $worker_connections = hiera('worker_connections', $nginx::params::worker_connections),
   $includes_dir       = hiera('includes_dir', $nginx::params::includes_dir),
-  $conf               = hiera('conf', $nginx::params::conf)
+  $conf               = hiera('conf', $nginx::params::conf),
+  $etc_dir            = hiera('etc_dir', $nginx::params::etc_dir),
+  $proxy_params      = hiera('proxy_params', $nginx::params::proxy_params),
+  $data_dir           = hiera('data_dir', $nginx::params::data_dir),
+  $sites_enabled      = hiera('sites_enabled', $nginx::params::sites_enabled),
+  $sites_available    = hiera('sites_available', $nginx::params::sites_available)
 ) {
   include nginx::params
 
@@ -64,17 +69,18 @@ class nginx(
       group   => 'root',
       require => Package['nginx'];
 
-    $includes:
+    $includes_dir:
       ensure  => directory,
       mode    => '0644',
       owner   => 'root',
       group   => 'root',
       require => Package['nginx'];
+
     "${etc_dir}/fastcgi_params":
       ensure  => absent,
       require => Package['nginx'];
 
-    $nginx_proxy_params:
+    $proxy_params:
       ensure  => present,
       mode    => '0644',
       owner   => 'root',
@@ -83,11 +89,18 @@ class nginx(
       notify  => Service['nginx'],
       require => Package['nginx'];
   
-    $home:
+    $data_dir:
       ensure  => directory,
       mode    => '0755',
       owner   => 'root',
       group   => $group,
+      require => Package['nginx'];
+      
+    [ $sites_available , $sites_enabled ]:
+      ensure => directory,
+      mode => '0755',
+      owner => 'root',
+      group => 'root',
       require => Package['nginx'];
   } # end litany of file resources
 } # end init.pp

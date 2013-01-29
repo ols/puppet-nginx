@@ -1,7 +1,7 @@
 # Define: install_site
 #
 # Install nginx vhost
-# This definition is private, not intended to be called directly
+# This definition is private, not intended to be instantiated directly
 #
 define nginx::install_site(
   $sites_available = hiera('sites_available', $nginx::params::sites_available),

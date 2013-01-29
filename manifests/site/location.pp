@@ -1,5 +1,11 @@
-## define nginx::server
-define nginx::site::location($ensure=present, $location=undef, $site=undef, $location_options=undef) {
+## define nginx::site::location
+define nginx::site::location(
+  $ensure=present,
+  $location=undef,
+  $site=undef,
+  $location_options=undef,
+  $sites_enabled = hiera('sites_enabled', $nginx::params::sites_enabled)
+) {
   include nginx::params
 
   if ! $site {
@@ -15,7 +21,7 @@ define nginx::site::location($ensure=present, $location=undef, $site=undef, $loc
       parameter must be alphanumeric")
   }
 
-  file { "${nginx::params::nginx_sites_enabled}/${site}.d/${name}.conf":
+  file { "${sites_enabled}/${site}/${name}.conf":
     ensure  => present,
     content => template('nginx/location.erb'),
     notify  => Service['nginx'],
