@@ -1,18 +1,21 @@
-user <%= nginx_user %>;
-worker_processes  <%= nginx_worker_processes  %>;
+user <%= scope.lookupvar('user') %>;
+worker_processes  <%= scope.lookupvar('worker_processes')  %>;
 
-error_log  /var/log/nginx/error.log;
-pid        /var/run/nginx.pid;
+error_log  <%= scope.lookupvar('log_dir') %>/error.log;
+pid        <%= scope.lookupvar('pid_dir') %>/nginx.pid;
 
 events {
-    worker_connections  <%= nginx_worker_connections  %>;
+    worker_connections  <%= scope.lookupvar('worker_connections')  %>;
     # multi_accept on;
 }
 
 http {
-    include       /etc/nginx/mime.types;
+    include     <%= scope.lookupvar('etc_dir') %>/mime.types;
 
-    access_log	/var/log/nginx/access.log;
+    log_format remote '$remote_addr  - $remote_user [$time_local]  '
+                      '"$request" $status $bytes_sent '
+                      '"$http_referer" "$http_user_agent" "$http_x_forwarded_for"';
+    access_log	<%= scope.lookupvar('log_dir') %>/access.log remote buffer=32k;
 
     sendfile        on;
     #tcp_nopush     on;
@@ -24,8 +27,8 @@ http {
     gzip  on;
     gzip_disable "MSIE [1-6]\.(?!.*SV1)";
 
-    include /etc/nginx/conf.d/*.conf;
-    include /etc/nginx/sites-enabled/*;
+    include <%= scope.lookupvar('conf') %>/*.conf;
+    include <%= scope.lookupvar('sites_enabled') %>/*.conf;
 
     server_tokens off;
 }

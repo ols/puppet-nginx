@@ -4,72 +4,74 @@
 # This definition is private, not intended to be called directly
 #
 define nginx::install_site(
-  $content=undef,
-  $source=undef,
-  $root=undef) {
+  $sites_available = hiera('sites_available', $nginx::params::sites_available),
+  $sites_enabled   = hiera('sites_enabled', $nginx::params::sites_enabled),
+  $group           = hiera('group', $nginx::params::group),
+  $content         = undef,
+  $source          = undef,
+  $root            = undef
+) {
+  include nginx::params
 
-      # first, make sure the site config exists
-      case $content {
+  # first, make sure the site config exists
+  case $content {
+    undef: {
+      case $source {
         undef: {
-          case $source {
-            undef: {
-              file { "/etc/nginx/sites-available/${name}":
-                ensure  => present,
-                mode    => '0644',
-                owner   => 'root',
-                group   => 'root',
-                alias   => "sites-${name}",
-                notify  => Service['nginx'],
-                require => Package['nginx'],
-              }
-            }
-            default: {
-              file { "/etc/nginx/sites-available/${name}":
-                ensure  => present,
-                mode    => '0644',
-                owner   => 'root',
-                group   => 'root',
-                alias   => "sites-$name",
-                source => $source,
-                require => Package['nginx'],
-                notify  => Service['nginx'],
-              }
-            }
+          file { "${sites_available}/${name}":
+            ensure  => present,
+            mode    => '0644',
+            owner   => 'root',
+            group   => 'root',
+            alias   => "sites-${name}",
+            notify  => Service['nginx'],
+            require => Package['nginx'],
           }
         }
         default: {
-          file { "/etc/nginx/sites-available/${name}":
+          file { "${sites_available}/${name}":
             ensure  => present,
             mode    => '0644',
             owner   => 'root',
             group   => 'root',
             alias   => "sites-$name",
-            content => $content,
+            source => $source,
             require => Package['nginx'],
             notify  => Service['nginx'],
           }
         }
-      }
-    
-      # now, enable it.
-      exec { "ln -s /etc/nginx/sites-available/${name} /etc/nginx/sites-enabled/${name}":
-        unless  => "/bin/sh -c '[ -L /etc/nginx/sites-enabled/${name} ] && \
-          [ /etc/nginx/sites-enabled/${name} -ef /etc/nginx/sites-available/${name} ]'",
-        path    => ['/usr/bin/', '/bin/'],
+     }
+   }
+    default: {
+      file { "${sites_available}/${name}":
+        ensure  => present,
+        mode    => '0644',
+        owner   => 'root',
+        group   => 'root',
+        alias   => "sites-$name",
+        content => $content,
+        require => Package['nginx'],
         notify  => Service['nginx'],
-        require => File["sites-${name}"],
       }
-    
-      if $root != undef {
-        # ensure mkdir $root
-        file { $root:
-          ensure  => directory,
-          mode    => '0750',
-          owner   => 'root',
-          group   => 'www-data', # hardcoded XXX
-          require => Package['nginx'],
-          notify  => Service['nginx'],
-        } # end file
-      } # end conditional
-
-} # end nginx::install_site()
+    }
+  }
+  # now, enable it.
+  exec { "ln -s ${sites_available}/${name} ${sites_enabled}/${name}":
+    unless  => "/bin/sh -c '[ -L /${sites_enabled}/${name} ] && \
+      [ ${sites_enabled}/${name} -ef ${sites_available}/${name} ]'",
+    path    => ['/usr/bin/', '/bin/'],
+    notify  => Service['nginx'],
+    require => File["sites-${name}"],
+  }
+  if $root != undef {
+    # ensure mkdir $root
+    file { $root:
+      ensure  => directory,
+      mode    => '0750',
+      owner   => 'root',
+      group   => $group,
+      require => Package['nginx'],
+       notify  => Service['nginx'],
+    } # end file   
+  } # end conditional
+}  # end nginx::install_site()

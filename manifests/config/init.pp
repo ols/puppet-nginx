@@ -19,7 +19,7 @@ define nginx::config(
         default => $content,
       }
     
-      file { "${nginx::nginx_conf}/${order}-${name}.conf":
+      file { "${nginx::params::nginx_conf}/${order}-${name}.conf":
         ensure  => $ensure,
         content => $real_content,
         mode    => '0644',
