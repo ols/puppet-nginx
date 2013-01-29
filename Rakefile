@@ -1,4 +1,4 @@
-require 'rubygems'
+require 'bundler/setup'
 require 'rake'
 
 task_dir = File.expand_path("../tasks", __FILE__)

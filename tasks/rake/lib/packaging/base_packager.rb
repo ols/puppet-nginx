@@ -1,6 +1,4 @@
-gem 'fpm', '<=0.3.11'
 require 'fpm'
-require 'fpm/program'
 require 'pp'
 
 $:.unshift(File.join(File.dirname(__FILE__), '..'))

@@ -16,5 +16,4 @@ class nginx::params {
   $conf = '${etc_dir}/conf.d'
   $sites_enabled = '${etc_dir}/sites-enabled'
   $sites_available = '${etc_dir}/sites-available'
-
 }

@@ -27,7 +27,7 @@ class nginx(
   $includes_dir       = hiera('includes_dir', $nginx::params::includes_dir),
   $conf               = hiera('conf', $nginx::params::conf),
   $etc_dir            = hiera('etc_dir', $nginx::params::etc_dir),
-  $proxy_params      = hiera('proxy_params', $nginx::params::proxy_params),
+  $proxy_params       = hiera('proxy_params', $nginx::params::proxy_params),
   $data_dir           = hiera('data_dir', $nginx::params::data_dir),
   $sites_enabled      = hiera('sites_enabled', $nginx::params::sites_enabled),
   $sites_available    = hiera('sites_available', $nginx::params::sites_available)
@@ -44,8 +44,7 @@ class nginx(
     require    => File["${etc_dir}/nginx.conf"],
     restart    => '/etc/init.d/nginx reload'
   }
-
-  file { 
+  file {
     "${etc_dir}/nginx.conf":
       ensure  => present,
       mode    => '0644',
@@ -53,15 +52,17 @@ class nginx(
       group   => 'root',
       content => template('nginx/nginx.conf.erb'),
       notify  => Service['nginx'],
-      require => Package['nginx'];
-
+      require => Package['nginx'],
+  }
+  file {
     $conf:
       ensure  => directory,
       mode    => '0644',
       owner   => 'root',
       group   => 'root',
-      require => Package['nginx'];
-
+      require => Package['nginx'],
+  }
+  file {
     "${etc_dir}/ssl":
       ensure  => directory,
       mode    => '0644',
@@ -75,7 +76,8 @@ class nginx(
       owner   => 'root',
       group   => 'root',
       require => Package['nginx'];
-
+  }
+  file {
     "${etc_dir}/fastcgi_params":
       ensure  => absent,
       require => Package['nginx'];
@@ -88,14 +90,15 @@ class nginx(
       content => template('nginx/includes/proxy_params'),
       notify  => Service['nginx'],
       require => Package['nginx'];
-  
+
     $data_dir:
       ensure  => directory,
       mode    => '0755',
       owner   => 'root',
       group   => $group,
       require => Package['nginx'];
-      
+  }
+  file {    
     [ $sites_available , $sites_enabled ]:
       ensure => directory,
       mode => '0755',
