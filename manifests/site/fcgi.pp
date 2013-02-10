@@ -1,4 +1,4 @@
-# Define: nginx::fcgi::site
+# Define: nginx::site::fcgi
 #
 # Create a fcgi site config from template using parameters.
 # You can use my php5-fpm class to manage fastcgi servers.
@@ -22,13 +22,13 @@
 # * nginx/fcgi_site.erb
 #
 # Sample Usage :
-#   nginx::fcgi::site { 'default':
+#   nginx::site::fcgi { 'default':
 #     root         => '/var/www/nginx-default',
 #     fastcgi_pass => '127.0.0.1:9000',
 #     server_name  => ['localhost', $hostname, $fqdn],
 #   }
 #
-#   nginx::fcgi::site { 'default-ssl':
+#   nginx::site::fcgi { 'default-ssl':
 #     listen          => '443',
 #     root            => '/var/www/nginx-default',
 #     fastcgi_pass    => '127.0.0.1:9000',

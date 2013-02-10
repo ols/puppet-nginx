@@ -11,11 +11,6 @@
 # * /etc/nginx/conf.d for http config snippet
 # * /etc/nginx/includes for sites includes
 #
-# Provide 3 definitions :
-# * nginx::config (http config snippet)
-# * nginx::site (http site)
-# * nginx::site_include (site includes)
-#
 # Templates:
 #   - nginx.conf.erb => /etc/nginx/nginx.conf
 #
