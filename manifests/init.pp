@@ -31,8 +31,7 @@ class nginx(
   $data_dir           = hiera('data_dir', $nginx::params::data_dir),
   $sites_enabled      = hiera('sites_enabled', $nginx::params::sites_enabled),
   $sites_available    = hiera('sites_available', $nginx::params::sites_available)
-) {
-  require nginx::params
+) inherits nginx::params {
 
   if ! defined(Package['nginx']) { package { 'nginx': ensure => installed }}
 

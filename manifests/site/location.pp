@@ -1,10 +1,9 @@
-## define nginx::site::location
 define nginx::site::location(
   $ensure           = present,
   $location         = undef,
   $site             = undef,
   $location_options = undef,
-  $sites_enabled    = hiera('sites_enabled', $nginx::params::sites_enabled)
+  $sites_enabled    = hiera('sites_enabled')
 ) {
   include nginx::params
 

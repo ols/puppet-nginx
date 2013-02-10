@@ -4,15 +4,13 @@
 # This definition is private, not intended to be instantiated directly
 #
 define nginx::install_site(
-  $sites_available = hiera('sites_available', $nginx::params::sites_available),
-  $sites_enabled   = hiera('sites_enabled', $nginx::params::sites_enabled),
-  $group           = hiera('group', $nginx::params::group),
+  $sites_available = hiera('sites_available'),
+  $sites_enabled   = hiera('sites_enabled'),
+  $group           = hiera('group'),
   $content         = undef,
   $source          = undef,
-  $root            = undef
+  $root            = undef,
 ) {
-  include nginx::params
-
   # first, make sure the site config exists
   case $content {
     undef: {

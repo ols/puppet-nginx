@@ -51,7 +51,7 @@ define nginx::site::fcgi(
   $template            = 'nginx/fcgi_site.erb') {
 
       # the stuff in this class ought to be brought in here..
-      class { 'nginx::fcgi': }
+      class { 'nginx::config::fcgi': }
     
       $real_server_name = $server_name ? {
         undef   => $name,
@@ -65,14 +65,7 @@ define nginx::site::fcgi(
     
       # Autogenerating ssl certs
       if $listen == '443' and  $ensure == 'present' and ($ssl_certificate == undef or $ssl_certificate_key == undef) {
-        exec { "generate-${name}-certs":
-          command => "/usr/bin/openssl req -new -inform PEM -x509 -nodes -days 999 -subj \
-            '/C=ZZ/ST=AutoSign/O=AutoSign/localityName=AutoSign/commonName=${real_server_name}/organizationalUnitName=AutoSign/emailAddress=AutoSign/' \
-            -newkey rsa:2048 -out /etc/nginx/ssl/${name}.pem -keyout /etc/nginx/ssl/${name}.key",
-          unless  => "/usr/bin/test -f /etc/nginx/ssl/${name}.pem",
-          require => File['/etc/nginx/ssl'],
-          notify  => Service['nginx'],
-        }
+        nginx::create_ssl_cert { $name: }
       }
     
       $real_ssl_certificate = $ssl_certificate ? {
