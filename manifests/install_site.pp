@@ -40,8 +40,8 @@ define nginx::install_site(
             notify  => Service['nginx'],
           }
         }
-     }
-   }
+      }
+    }
     default: {
       file { "${sites_available}/${name}":
         ensure  => present,
